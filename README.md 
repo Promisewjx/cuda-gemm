@@ -1,0 +1,43 @@
+# 🚀 CUDA GEMM Optimization Project
+
+本项目旨在展示如何逐步优化矩阵乘（GEMM）在 GPU 上的性能，最终实现对 NVIDIA Tensor Core 的高效利用。适用于学习 CUDA 优化、性能剖析（ncu/nsys）及简历展示。
+
+---
+
+## 📁 项目结构
+
+- `kernels/`：存放各优化阶段的 CUDA kernel
+- `include/`：头文件，声明各 kernel 函数
+- `main.cu`：主程序，调用不同版本并输出性能
+- `results/`：存放 profiling 报告和 benchmark 数据
+- `plots/`：绘图脚本和对比图
+- `Makefile`：一键编译运行
+
+---
+
+## 🧠 优化阶段说明
+
+| 阶段编号 | 优化策略                          | 说明                                                                 |
+|----------|----------------------------------|----------------------------------------------------------------------|
+| Stage 0  | Naive GEMM                       | 每线程计算一个元素，无共享内存，低效全局访存                        |
+| Stage 1  | Tiled GEMM                       | 利用 shared memory 进行 tile 共享，降低 global memory 访问         |
+| Stage 2  | Register Blocking                | 每线程计算 2x2 块，减少访存和 thread 数                             |
+| Stage 3  | Double Buffering                 | 使用双缓冲隐藏 shared memory 加载延迟                               |
+| Stage 4  | Tensor Core (Standard Tile)     | 利用 WMMA（16x16x16） fragment 实现硬件矩阵乘，提升吞吐              |
+| Stage 5  | Tensor Core (Large Tile)        | 多次使用 Tensor Core Fragment 并优化共享内存和线程绑定布局         |
+
+---
+
+## 🚦 编译与运行
+
+```bash
+make
+./gemm_test 1024
+
+## 🔍 分析性能
+ncu：单个 kernel 的指令级别执行、SM 利用率、Tensor Core 利用率、内存吞吐、bank conflict 等
+which ncu
+sudo /usr/local/cuda-12.1/bin/ncu --target-processes all ./gemm_test 4096
+
+nsys：整体程序调度、CPU 与 GPU 的协同、kernel 调度顺序、CPU stall、kernel overlap 等
+nsys profile --stats=true --force-overwrite true -o report_nsys ./gemm_test 4096
