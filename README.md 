@@ -1,6 +1,6 @@
 # 🚀 CUDA GEMM Optimization Project
 
-本项目旨在展示如何逐步优化矩阵乘（GEMM）在 GPU 上的性能，最终实现对 NVIDIA Tensor Core 的高效利用。适用于学习 CUDA 优化、性能剖析（ncu/nsys）及简历展示。
+本项目旨在展示如何逐步优化矩阵乘（GEMM）在 GPU 上的性能，最终实现对 NVIDIA Tensor Core 的高效利用。
 
 ---
 
